@@ -1,4 +1,6 @@
-mark-dom
+Dom Highlighter
 ========
 
-Mark dom by color, for f2e developers.
+A dom highlighter for front-end developer.
+
+[Chrome Webstore](https://chrome.google.com/webstore/detail/dom-highlighter/pkljnnogdmlajgaoodihioopfdkpgjgg)
