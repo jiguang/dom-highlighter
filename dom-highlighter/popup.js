@@ -19,6 +19,7 @@ $(function(){
 
         var item;
         var item_list = data.item_list;
+
         if(item_list.length != 0){
             for(var i = 0, j=item_list.length; i<j; i++){
                 item = template.replace('{{selector}}', item_list[i].selector).replace('{{color}}', item_list[i].color);

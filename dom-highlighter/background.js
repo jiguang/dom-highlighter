@@ -16,7 +16,7 @@ chrome.runtime.onConnect.addListener(function(port) {
             }, function(data){
 
                 var item_list = data.item_list;
-
+                setBadge(data);
                 port.postMessage({
                     status: "ok",
                     item_list: item_list
@@ -37,6 +37,7 @@ function init(callback){
     });
 }
 
+// add item
 function add(item, callback){
 
     storage.get({
@@ -53,26 +54,17 @@ function add(item, callback){
         storage.set({
             item_list: item_list
         }, function(){
-
-            chrome.tabs.query({active:true,windowId: chrome.windows.WINDOW_ID_CURRENT}, function(tab) {
-
-                var port = chrome.tabs.connect(tab[0].id, {name: "dom_highlighter"});
-                port.onMessage.addListener(function(data) {
-
-                    if (data.status == "ok" && typeof callback == 'function'){
-                        callback(data);
-                    }
-                });
-                port.postMessage({
-                    action: "add",
-                    selector: item.selector,
-                    color: item.color
-                });
+            storage.get({
+                item_list: ''
+            }, function(data){
+                setBadge(data);
             });
+            postMessage(item, 'add', callback);
         });
     });
 }
 
+// remove item
 function remove(item, callback){
 
     storage.get({
@@ -80,7 +72,6 @@ function remove(item, callback){
     }, function(data){
 
         var item_list = data.item_list;
-
         for(var i = 0, j = item_list.length; i<j; i++){
             if(item_list[i].selector == item.selector){
                 item_list.splice(i, 1);
@@ -91,26 +82,40 @@ function remove(item, callback){
         storage.set({
             item_list: item_list
         }, function(){
-
-            chrome.tabs.query({active:true,windowId: chrome.windows.WINDOW_ID_CURRENT}, function(tab) {
-
-                var port = chrome.tabs.connect(tab[0].id, {name: "dom_highlighter"});
-                port.onMessage.addListener(function(data) {
-
-                    if (data.status == "ok" && typeof callback == 'function'){
-                        callback(data);
-                    }
-                });
-
-                port.postMessage({
-                    action: "remove",
-                    selector: item.selector,
-                    color: item.color
-                });
-            });
+            postMessage(item, 'remove', callback);
         });
     });
 
+}
+
+// post message to tab
+function postMessage(item, action, callback){
+    chrome.tabs.query({active:true,windowId: chrome.windows.WINDOW_ID_CURRENT}, function(tab) {
+        var port = chrome.tabs.connect(tab[0].id, {name: "dom_highlighter"});
+        port.onMessage.addListener(function(data) {
+            if (data.status == "ok" && typeof callback == 'function'){
+                callback(data);
+            }
+        });
+        port.postMessage({
+            action: action,
+            selector: item.selector,
+            color: item.color
+        });
+    });
+}
+
+// set badge
+function setBadge(data){
+    var item_list = data.item_list;
+    var txt = item_list.length == 0 ? '' : item_list.length + '';
+
+    chrome.browserAction.setBadgeText({
+        text: txt
+    });
+    chrome.browserAction.setBadgeBackgroundColor({
+        color: '#16a085'
+    });
 }
 
 

@@ -5,6 +5,7 @@
  * @date 2013-11-25
  */
 
+// init, get item list from background
 var port = chrome.runtime.connect({name: "dom_highlighter"});
 port.postMessage({action: "init"});
 port.onMessage.addListener(function(msg) {
@@ -20,6 +21,7 @@ port.onMessage.addListener(function(msg) {
     }
 });
 
+// get message from background
 chrome.runtime.onConnect.addListener(function(port) {
 
     port.onMessage.addListener(function(msg) {
@@ -28,7 +30,6 @@ chrome.runtime.onConnect.addListener(function(port) {
         if (msg.action == "add"){
             $(msg.selector).css('background-color', msg.color);
         }
-
         if (msg.action == "remove"){
             location.reload();
         }
@@ -36,7 +37,6 @@ chrome.runtime.onConnect.addListener(function(port) {
         port.postMessage({
             status: "ok"
         });
-
     });
 });
 
